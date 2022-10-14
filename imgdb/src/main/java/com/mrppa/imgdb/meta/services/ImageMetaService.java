@@ -2,6 +2,7 @@ package com.mrppa.imgdb.meta.services;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import com.mrppa.imgdb.meta.repositories.ImageMetaRepository;
 @Service
 public class ImageMetaService {
 
+	@Autowired
 	ImageMetaRepository imageMetaRepository;
 
 	public ImageMeta save(ImageMeta imageMeta) {

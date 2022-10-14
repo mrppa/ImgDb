@@ -174,4 +174,40 @@ public class ImageDbServiceTest {
 		verify(imageMetaService, Mockito.times(1)).delete(eq("9"));
 	}
 
+	@Test
+	void opperationDeleteImageWhenSucessful() throws ImageDbException {
+
+		ImageMeta imageMeta = new ImageMeta();
+		imageMeta.setImagId("10");
+		imageMeta.setHashedUserKey(passwordEncoder.encode("key10"));
+		imageMeta.setStatus(ImageMetaStatus.ACTIVE);
+		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
+		doNothing().when(imageMetaService).delete(any());
+
+		imageDbService.deleteImage("10", "key10");
+	}
+
+	@Test
+	void opperationDeleteImageWhenNoImageShouldThrowError() throws ImageDbException {
+
+		when(imageMetaService.get(any())).thenReturn(Optional.empty());
+
+		assertThrowsExactly(ImageFileNotFoundException.class, () -> imageDbService.deleteImage("11", "key11"));
+	}
+
+	@Test
+	void opperationDeleteImageWhenNoImageInStoreShouldSuccess() throws ImageDbException {
+
+		ImageMeta imageMeta = new ImageMeta();
+		imageMeta.setImagId("12");
+		imageMeta.setHashedUserKey(passwordEncoder.encode("key12"));
+		imageMeta.setStatus(ImageMetaStatus.ACTIVE);
+		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
+
+		doThrow(ImageFileNotFoundException.class).when(imageStore).deleteImage(any());
+
+		imageDbService.deleteImage("12", "key112");
+
+		verify(imageMetaService, Mockito.times(1)).delete(eq("12"));
+	}
 }

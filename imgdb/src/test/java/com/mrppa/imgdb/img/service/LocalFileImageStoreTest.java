@@ -39,6 +39,22 @@ class LocalFileImageStoreTest {
 	}
 
 	@Test
+	void testStoreAndRetriveAndDelete() throws ImageDbException {
+		String content = "This is sample file content";
+		localFileImageStore.storeImage(new ByteArrayInputStream(content.getBytes()), "f1.txt");
+
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		localFileImageStore.retriveImage(outStream, "f1.txt");
+
+		localFileImageStore.deleteImage("f1.txt");
+
+		ByteArrayOutputStream outStream1 = new ByteArrayOutputStream();
+		assertThrowsExactly(ImageFileNotFoundException.class, () -> {
+			localFileImageStore.retriveImage(outStream1, "f1.txt");
+		});
+	}
+
+	@Test
 	void whenStoreAgainShouldOverWritten() throws ImageDbException {
 		String content = "This is sample file content";
 		localFileImageStore.storeImage(new ByteArrayInputStream(content.getBytes()), "f1.txt");
@@ -58,6 +74,13 @@ class LocalFileImageStoreTest {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		assertThrowsExactly(ImageFileNotFoundException.class, () -> {
 			localFileImageStore.retriveImage(outStream, "non_exists.txt");
+		});
+	}
+
+	@Test
+	void whenDeleteNonExistingFileShouldFail() throws ImageDbException {
+		assertThrowsExactly(ImageFileNotFoundException.class, () -> {
+			localFileImageStore.deleteImage("non_exists.txt");
 		});
 	}
 

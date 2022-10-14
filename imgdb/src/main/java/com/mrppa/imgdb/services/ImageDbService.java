@@ -109,4 +109,23 @@ public class ImageDbService {
 
 	}
 
+	public void deleteImage(String imageId, String userKey) throws ImageDbException {
+		Optional<ImageMeta> optImageMeta = imageMetaService.get(imageId);
+		if (optImageMeta.isEmpty()) {
+			throw new ImageFileNotFoundException("Imagemeta not found");
+		}
+		ImageMeta imageMeta = optImageMeta.get();
+
+		accessControlService.validateRowLevelAccess(userKey, imageMeta, "delete");
+
+		imageMetaService.delete(imageId);
+
+		try {
+			imageStore.deleteImage(imageId);
+		} catch (ImageFileNotFoundException e) {
+			LOGGER.info("Iamge for id {} not found", optImageMeta.get().getImagId());
+		}
+
+	}
+
 }

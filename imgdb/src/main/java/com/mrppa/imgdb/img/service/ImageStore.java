@@ -9,4 +9,6 @@ public interface ImageStore {
 	public void storeImage(InputStream inputStream, String fileName) throws ImageDbException;
 
 	public void retriveImage(OutputStream outputStream, String fileName) throws ImageDbException;
+
+	public void deleteImage(String fileName) throws ImageDbException;
 }

@@ -51,4 +51,13 @@ public class LocalFileImageStore implements ImageStore {
 			throw new ImageFileStoreException("Error retriving image", e);
 		}
 	}
+
+	@Override
+	public void deleteImage(String fileName) throws ImageDbException {
+		File targetFile = new File(basePath + File.separator + fileName);
+		if (!targetFile.exists()) {
+			throw new ImageFileNotFoundException("Image file not found");
+		}
+		targetFile.delete();
+	}
 }

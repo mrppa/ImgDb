@@ -23,7 +23,7 @@ public class ImageMeta {
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	private String imagId;
 
-	private String desc;
+	private String description;
 
 	@Enumerated
 	private ImageMetaStatus status;
@@ -41,5 +41,7 @@ public class ImageMeta {
 	private String hashedUserKey;
 
 	private ImageMetaAccess access;
+
+	private String extension;
 
 }
