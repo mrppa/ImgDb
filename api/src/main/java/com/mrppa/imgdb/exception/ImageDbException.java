@@ -7,9 +7,6 @@ import lombok.Setter;
 @Setter
 public class ImageDbException extends Exception {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public ImageDbException(String errorMessage) {

@@ -1,4 +1,4 @@
-package com.mrppa.imgdb.img.service;
+package com.mrppa.imgdb.img.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +14,7 @@ import org.springframework.util.FileCopyUtils;
 import com.mrppa.imgdb.exception.ImageDbException;
 import com.mrppa.imgdb.exception.ImageFileNotFoundException;
 import com.mrppa.imgdb.exception.ImageFileStoreException;
+import com.mrppa.imgdb.img.service.ImageStore;
 
 public class LocalFileImageStore implements ImageStore {
 	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());

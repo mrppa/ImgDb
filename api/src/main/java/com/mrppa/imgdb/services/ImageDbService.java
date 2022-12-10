@@ -14,13 +14,13 @@ import com.mrppa.imgdb.exception.ImageDbException;
 import com.mrppa.imgdb.exception.ImageFileNotFoundException;
 import com.mrppa.imgdb.img.service.ImageStore;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
-import com.mrppa.imgdb.meta.entities.ImageMetaAccess;
 import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
+import com.mrppa.imgdb.model.Operation;
 
 @Service
 public class ImageDbService {
-	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+	private final Logger LOGGER = LoggerFactory.getLogger(ImageDbService.class);
 
 	@Autowired
 	ImageMetaService imageMetaService;
@@ -34,66 +34,84 @@ public class ImageDbService {
 	@Autowired
 	AccessControlService accessControlService;
 
-	public String addImage(InputStream inputStream, CharSequence userKey, ImageMetaAccess access)
+	/**
+	 * Add Image
+	 *
+	 * @param inputStream
+	 * @param imageMeta
+	 * @param userKey
+	 * @return imageId imageMeta
+	 * @throws ImageDbException
+	 */
+	public ImageMeta addImage(InputStream inputStream, ImageMeta imageMeta, CharSequence userKey)
 			throws ImageDbException {
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setStatus(ImageMetaStatus.UPLOADING);
-		if (access != null) {
-			imageMeta.setAccess(access);
-		}
 
-		String hashedUserKey = passwordEncoder.encode(userKey == null ? "" : userKey);
-		imageMeta.setHashedUserKey(hashedUserKey);
+		LOGGER.debug("Adding image with imageMeta:{}", imageMeta);
 
+		// initial imageMeta storing
+		imageMeta.setImagId(null);
+		imageMeta.setHashedUserKey(passwordEncoder.encode(userKey));
 		imageMeta = imageMetaService.save(imageMeta);
 
 		try {
+			// Store actual image
 			imageStore.storeImage(inputStream, imageMeta.getImagId());
 
+			// Update image meta
 			imageMeta.setStatus(ImageMetaStatus.ACTIVE);
-			imageMetaService.save(imageMeta);
-		} catch (ImageDbException e) {
-			LOGGER.error("Error storing image", e);
-			imageMetaService.delete(imageMeta.getImagId());
-			throw e;
+			imageMeta = imageMetaService.save(imageMeta);
+
+			LOGGER.debug("Adding image completed with ImageMeta:{}", imageMeta);
+		} catch (Exception e) {
+			LOGGER.debug("Image Store failed . Cleanup to be triggered for {}", imageMeta.getImagId());
+			triggerCleanupImage(imageMeta.getImagId());
+			throw new ImageDbException("Adding image failed", e);
 		}
 
-		return imageMeta.getImagId();
+		return imageMeta;
 	}
 
-	public void replaceImage(String imageId, InputStream inputStream, String userKey) throws ImageDbException {
-		Optional<ImageMeta> optImageMeta = imageMetaService.get(imageId);
-		if (optImageMeta.isEmpty()) {
-			throw new ImageFileNotFoundException("Image not found for id " + imageId);
-		}
-		ImageMeta imageMeta = optImageMeta.get();
-		if (ImageMetaStatus.ACTIVE != imageMeta.getStatus()) {
-			throw new ImageDbException("Image cannot be altered this time ");
-		}
-		accessControlService.validateRowLevelAccess(userKey, imageMeta, "replace");
+	/**
+	 *
+	 * @param imageId
+	 * @param userKey
+	 * @throws ImageFileNotFoundException
+	 * @throws ImageDbException
+	 */
+	public void deleteImage(String imageId, CharSequence userKey) throws ImageFileNotFoundException, ImageDbException {
+		LOGGER.debug("Deleting image with imageId:{}", imageId);
 
-		imageMeta.setStatus(ImageMetaStatus.UPLOADING_MODIFICATION);
-
-		imageMeta = imageMetaService.save(imageMeta);
-
-		try {
-			imageStore.storeImage(inputStream, imageMeta.getImagId());
-		} catch (ImageDbException e) {
-			LOGGER.error("Error storing image", e);
-			imageMeta.setStatus(ImageMetaStatus.ACTIVE);
-			imageMetaService.save(imageMeta);
-			throw e;
-		}
-	}
-
-	public void retriveImage(String imageId, OutputStream outputStream, String userKey) throws ImageDbException {
 		Optional<ImageMeta> optImageMeta = imageMetaService.get(imageId);
 		if (optImageMeta.isEmpty()) {
 			throw new ImageFileNotFoundException("Imagemeta not found");
 		}
 		ImageMeta imageMeta = optImageMeta.get();
 
-		accessControlService.validateRowLevelAccess(userKey, imageMeta, "replace");
+		accessControlService.validateRowLevelAccess(userKey, imageMeta, Operation.MODIFY);
+
+		triggerCleanupImage(imageId);
+
+	}
+
+	/**
+	 *
+	 * @param imageId
+	 * @param outputStream
+	 * @param userKey
+	 * @throws ImageFileNotFoundException
+	 * @throws ImageDbException
+	 */
+	public void retrieveImage(String imageId, OutputStream outputStream, CharSequence userKey)
+			throws ImageFileNotFoundException, ImageDbException {
+		LOGGER.debug("Retriving image with imageId:{}", imageId);
+
+		Optional<ImageMeta> optImageMeta = imageMetaService.get(imageId);
+		if (optImageMeta.isEmpty()) {
+			throw new ImageFileNotFoundException("ImageMeta not found");
+		}
+		ImageMeta imageMeta = optImageMeta.get();
+
+		accessControlService.validateRowLevelAccess(userKey, imageMeta, Operation.VIEW);
 
 		if (ImageMetaStatus.ACTIVE != imageMeta.getStatus()) {
 			throw new ImageDbException("Image fetch image at this time ");
@@ -106,26 +124,60 @@ public class ImageDbService {
 			imageMetaService.delete(optImageMeta.get().getImagId());
 			throw new ImageFileNotFoundException("Imagemeta ready to delete");
 		}
-
 	}
 
-	public void deleteImage(String imageId, String userKey) throws ImageDbException {
+	/**
+	 * Retrieve Image by Id
+	 *
+	 * @param imageId
+	 * @param userKey
+	 * @return
+	 * @throws ImageFileNotFoundException
+	 * @throws ImageDbException
+	 */
+	public ImageMeta retrieveImageMetaData(String imageId, CharSequence userKey)
+			throws ImageFileNotFoundException, ImageDbException {
+		LOGGER.debug("Retriving imageMeta with imageId:{}", imageId);
+
 		Optional<ImageMeta> optImageMeta = imageMetaService.get(imageId);
 		if (optImageMeta.isEmpty()) {
-			throw new ImageFileNotFoundException("Imagemeta not found");
+			throw new ImageFileNotFoundException("ImageMeta not found");
 		}
 		ImageMeta imageMeta = optImageMeta.get();
 
-		accessControlService.validateRowLevelAccess(userKey, imageMeta, "delete");
+		accessControlService.validateRowLevelAccess(userKey, imageMeta, Operation.VIEW);
 
-		imageMetaService.delete(imageId);
+		return imageMeta;
+	}
 
-		try {
-			imageStore.deleteImage(imageId);
-		} catch (ImageFileNotFoundException e) {
-			LOGGER.info("Iamge for id {} not found", optImageMeta.get().getImagId());
+	public ImageMeta updateImageMetaData(ImageMeta imageMeta, CharSequence userKey)
+			throws ImageFileNotFoundException, ImageDbException {
+		LOGGER.debug("Updating imageMeta with  imageMeta:{}", imageMeta);
+
+		Optional<ImageMeta> optDbImageMeta = imageMetaService.get(imageMeta.getImagId());
+		if (optDbImageMeta.isEmpty()) {
+			throw new ImageFileNotFoundException("ImageMeta not found in DB");
 		}
 
+		accessControlService.validateRowLevelAccess(userKey, optDbImageMeta.get(), Operation.VIEW);
+
+		imageMeta.setHashedUserKey(optDbImageMeta.get().getHashedUserKey());
+		imageMetaService.save(imageMeta);
+
+		return imageMeta;
+	}
+
+	public void triggerCleanupImage(String imageId) {
+		try {
+			imageMetaService.delete(imageId);
+		} catch (Exception e) {
+			LOGGER.error("Error cleaning up image MetaData for {}", imageId);
+		}
+		try {
+			imageStore.deleteImage(imageId);
+		} catch (Exception e) {
+			LOGGER.error("Error cleaning up image for {}", imageId);
+		}
 	}
 
 }

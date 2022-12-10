@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 import com.mrppa.imgdb.img.service.ImageStore;
-import com.mrppa.imgdb.img.service.LocalFileImageStore;
+import com.mrppa.imgdb.img.service.impl.LocalFileImageStore;
 
 @Configuration
 public class Config {

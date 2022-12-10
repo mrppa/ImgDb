@@ -1,11 +1,14 @@
 package com.mrppa.imgdb.services;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -22,7 +25,6 @@ import com.mrppa.imgdb.exception.ImageDbException;
 import com.mrppa.imgdb.exception.ImageFileNotFoundException;
 import com.mrppa.imgdb.img.service.ImageStore;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
-import com.mrppa.imgdb.meta.entities.ImageMetaAccess;
 import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
 
@@ -45,169 +47,88 @@ public class ImageDbServiceTest {
 	ImageDbService imageDbService;
 
 	@Test
-	void opperationSaveWhenSucessfulShouldReturnImageId() throws ImageDbException {
+	void saveWhenSucessfulShouldReturnImageMeta() throws ImageDbException {
 
-		when(imageMetaService.save(any(ImageMeta.class))).thenAnswer((answer) -> {
-			ImageMeta imageMeta = answer.getArgument(0);
-			imageMeta.setImagId("1");
-			assertNotNull(imageMeta.getHashedUserKey());
-			return imageMeta;
-		});
-
+		when(imageMetaService.save(any())).thenReturn(ImageMeta.builder().imagId("TEST0001").build());
 		doNothing().when(imageStore).storeImage(any(), any());
 
-		byte[] content = "test".getBytes();
-		String imageId = imageDbService.addImage(new ByteArrayInputStream(content), "key1", new ImageMetaAccess());
-		assertNotNull(imageId);
+		ImageMeta imageMeta = imageDbService.addImage(new ByteArrayInputStream(sampleObj), ImageMeta.builder().build(),
+				"mykey");
+		assertNotNull(imageMeta);
+		assertEquals("TEST0001", imageMeta.getImagId());
+		assertEquals(ImageMetaStatus.ACTIVE, imageMeta.getStatus());
+
 		verify(imageStore, Mockito.times(1)).storeImage(any(), any());
 		verify(imageMetaService, Mockito.times(2)).save(any());
 	}
 
 	@Test
-	void opperationSaveWhenErrorSaveMetaShouldReturnException() throws ImageDbException {
+	void validDeleteShouldPromptSuccess() throws ImageDbException {
 
-		when(imageMetaService.save(any(ImageMeta.class))).thenThrow(new RuntimeException());
-
-		byte[] content = "test".getBytes();
-		assertThrowsExactly(RuntimeException.class,
-				() -> imageDbService.addImage(new ByteArrayInputStream(content), "key2", new ImageMetaAccess()));
-		verify(imageStore, Mockito.times(0)).storeImage(any(), any());
-	}
-
-	@Test
-	void opperationSaveWhenErrorStoreImageShouldDeleteNReturnException() throws ImageDbException {
-
-		when(imageMetaService.save(any(ImageMeta.class))).thenAnswer((answer) -> {
-			ImageMeta imageMeta = answer.getArgument(0);
-			imageMeta.setImagId("3");
-			assertNotNull(imageMeta.getHashedUserKey());
-			return imageMeta;
-		});
-
-		doThrow(ImageDbException.class).when(imageStore).storeImage(any(), any());
-
-		byte[] content = "test".getBytes();
-		assertThrowsExactly(ImageDbException.class,
-				() -> imageDbService.addImage(new ByteArrayInputStream(content), "key3", new ImageMetaAccess()));
-		verify(imageStore, Mockito.times(1)).storeImage(any(), any());
-		verify(imageMetaService, Mockito.times(1)).delete(eq("3"));
-	}
-
-	@Test
-	void opperationReplaceImgWhenSucessfulShouldReplace() throws ImageDbException {
-
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setImagId("4");
-		imageMeta.setHashedUserKey(passwordEncoder.encode("key4"));
-		imageMeta.setStatus(ImageMetaStatus.ACTIVE);
-		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
-		when(imageMetaService.save(any(ImageMeta.class))).thenAnswer((answer) -> answer.getArgument(0));
-
-		doNothing().when(imageStore).storeImage(any(), any());
-
-		byte[] content = "test".getBytes();
-		imageDbService.replaceImage("4", new ByteArrayInputStream(content), "key4");
-		verify(imageStore, Mockito.times(1)).storeImage(any(), any());
-	}
-
-	@Test
-	void opperationReplaceImgWhenInvalidStatusShouldThrowError() throws ImageDbException {
-
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setImagId("6");
-		imageMeta.setHashedUserKey(passwordEncoder.encode("key6"));
-		imageMeta.setStatus(ImageMetaStatus.UPLOADING);
-		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
-
-		byte[] content = "test".getBytes();
-		assertThrowsExactly(ImageDbException.class,
-				() -> imageDbService.replaceImage("6", new ByteArrayInputStream(content), "key6"));
-		verify(imageStore, Mockito.times(0)).storeImage(any(), any());
-	}
-
-	@Test
-	void opperationReplaceImgWhenNoImageFromMetaShouldThrowError() throws ImageDbException {
-
-		when(imageMetaService.get(any())).thenReturn(Optional.empty());
-
-		byte[] content = "test".getBytes();
-		assertThrowsExactly(ImageFileNotFoundException.class,
-				() -> imageDbService.replaceImage("7", new ByteArrayInputStream(content), "key7"));
-		verify(imageStore, Mockito.times(0)).storeImage(any(), any());
-	}
-
-	@Test
-	void opperationRetriveImageWhenSucessful() throws ImageDbException {
-
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setImagId("8");
-		imageMeta.setHashedUserKey(passwordEncoder.encode("key8"));
-		imageMeta.setStatus(ImageMetaStatus.ACTIVE);
-		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
-
-		imageDbService.retriveImage("8", new ByteArrayOutputStream(), "key8");
-	}
-
-	@Test
-	void opperationRetriveImageWhenNoImageShouldThrowError() throws ImageDbException {
-
-		when(imageMetaService.get(any())).thenReturn(Optional.empty());
-
-		assertThrowsExactly(ImageFileNotFoundException.class,
-				() -> imageDbService.retriveImage("7", new ByteArrayOutputStream(), "key8"));
-	}
-
-	@Test
-	void opperationRetriveImageWhenNoImageInStoreShouldDeleteMetaNThrowError() throws ImageDbException {
-
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setImagId("9");
-		imageMeta.setHashedUserKey(passwordEncoder.encode("key9"));
-		imageMeta.setStatus(ImageMetaStatus.ACTIVE);
-		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
-
-		doThrow(ImageFileNotFoundException.class).when(imageStore).retriveImage(any(), any());
-
-		assertThrowsExactly(ImageFileNotFoundException.class,
-				() -> imageDbService.retriveImage("9", new ByteArrayOutputStream(), "key9"));
-
-		verify(imageMetaService, Mockito.times(1)).delete(eq("9"));
-	}
-
-	@Test
-	void opperationDeleteImageWhenSucessful() throws ImageDbException {
-
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setImagId("10");
-		imageMeta.setHashedUserKey(passwordEncoder.encode("key10"));
-		imageMeta.setStatus(ImageMetaStatus.ACTIVE);
-		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
+		when(imageMetaService.get("TEST0001")).thenReturn(Optional.of(ImageMeta.builder().imagId("TEST0001").build()));
 		doNothing().when(imageMetaService).delete(any());
 
-		imageDbService.deleteImage("10", "key10");
+		doNothing().when(imageStore).deleteImage(any());
+		doNothing().when(accessControlService).validateRowLevelAccess(any(), any(), any());
+
+		imageDbService.deleteImage("TEST0001", "mykey");
+
+		verify(imageStore, Mockito.times(1)).deleteImage(any());
+		verify(imageMetaService, Mockito.times(1)).delete(any());
 	}
 
 	@Test
-	void opperationDeleteImageWhenNoImageShouldThrowError() throws ImageDbException {
+	void deleteWithInvalidImageIdShouldThrowError() throws ImageDbException {
 
-		when(imageMetaService.get(any())).thenReturn(Optional.empty());
+		when(imageMetaService.get("TEST0001")).thenReturn(Optional.empty());
 
-		assertThrowsExactly(ImageFileNotFoundException.class, () -> imageDbService.deleteImage("11", "key11"));
+		assertThrowsExactly(ImageFileNotFoundException.class, () -> imageDbService.deleteImage("TEST0001", "mykey"));
+
 	}
 
 	@Test
-	void opperationDeleteImageWhenNoImageInStoreShouldSuccess() throws ImageDbException {
+	void validRetrieveImageShouldReturnImageData() throws ImageDbException {
 
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setImagId("12");
-		imageMeta.setHashedUserKey(passwordEncoder.encode("key12"));
-		imageMeta.setStatus(ImageMetaStatus.ACTIVE);
-		when(imageMetaService.get(any())).thenReturn(Optional.of(imageMeta));
+		when(imageMetaService.get("TEST0001"))
+				.thenReturn(Optional.of(ImageMeta.builder().imagId("TEST0001").status(ImageMetaStatus.ACTIVE).build()));
 
-		doThrow(ImageFileNotFoundException.class).when(imageStore).deleteImage(any());
+		doNothing().when(imageStore).retriveImage(any(), any());
+		doNothing().when(accessControlService).validateRowLevelAccess(any(), any(), any());
 
-		imageDbService.deleteImage("12", "key112");
+		imageDbService.retrieveImage("TEST0001", null, "mykey");
 
-		verify(imageMetaService, Mockito.times(1)).delete(eq("12"));
+		verify(imageStore, Mockito.times(1)).retriveImage(any(), any());
 	}
+
+	@Test
+	void validRetrieveImageMetaShouldReturnImageMeta() throws ImageDbException {
+
+		when(imageMetaService.get("TEST0001"))
+				.thenReturn(Optional.of(ImageMeta.builder().imagId("TEST0001").status(ImageMetaStatus.ACTIVE).build()));
+
+		doNothing().when(accessControlService).validateRowLevelAccess(any(), any(), any());
+
+		ImageMeta imageMeta = imageDbService.retrieveImageMetaData("TEST0001", "mykey");
+		assertNotNull(imageMeta);
+		assertEquals("TEST0001", imageMeta.getImagId());
+
+	}
+
+	@Test
+	void validImageMetaShouldUpdateSucessfully() throws ImageDbException {
+
+		when(imageMetaService.get("TEST0001"))
+				.thenReturn(Optional.of(ImageMeta.builder().imagId("TEST0001").status(ImageMetaStatus.ACTIVE).build()));
+		when(imageMetaService.save(any())).thenReturn(ImageMeta.builder().imagId("TEST0001").build());
+
+		ImageMeta imageMetaUpdated = imageDbService.updateImageMetaData(ImageMeta.builder().imagId("TEST0001").build(),
+				"mykey");
+
+		assertNotNull(imageMetaUpdated);
+		assertEquals("TEST0001", imageMetaUpdated.getImagId());
+
+		verify(imageMetaService, Mockito.times(1)).save(any());
+	}
+
+	private static final byte[] sampleObj = "test".getBytes();
 }

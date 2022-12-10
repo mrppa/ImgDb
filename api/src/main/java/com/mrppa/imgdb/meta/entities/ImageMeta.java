@@ -13,10 +13,20 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
 @Entity
+@Builder
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class ImageMeta {
 	@Id
 	@GeneratedValue(generator = "UUID")
@@ -37,10 +47,12 @@ public class ImageMeta {
 	@Version
 	private int version;
 
-	@Column(nullable = false)
+	@Column
 	private String hashedUserKey;
 
-	private ImageMetaAccess access;
+	@Column(insertable = false)
+	@Builder.Default
+	private ImageMetaAccess access = new ImageMetaAccess();
 
 	private String extension;
 

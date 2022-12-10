@@ -14,6 +14,7 @@ import com.mrppa.imgdb.exception.ImageDBAccessDeniedException;
 import com.mrppa.imgdb.meta.entities.AccessMode;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
 import com.mrppa.imgdb.meta.entities.ImageMetaAccess;
+import com.mrppa.imgdb.model.Operation;
 
 @ExtendWith(MockitoExtension.class)
 class AccessControlServiceTest {
@@ -25,80 +26,53 @@ class AccessControlServiceTest {
 	AccessControlService accessControlService;
 
 	@Test
-	void whenPublicAccessShouldAllow() throws ImageDBAccessDeniedException {
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setAccess(new ImageMetaAccess());
-		imageMeta.getAccess().setReadAccess(AccessMode.PUBLIC);
-		imageMeta.getAccess().setWriteAccess(AccessMode.PUBLIC);
+	void whenPublicAccessShouldAllowRegardlessOfUserKey() throws ImageDBAccessDeniedException {
+		ImageMetaAccess imageMetaAccess = ImageMetaAccess.builder().readAccess(AccessMode.PUBLIC)
+				.writeAccess(AccessMode.PUBLIC).build();
 
-		accessControlService.validateRowLevelAccess(null, imageMeta, "view");
-		accessControlService.validateRowLevelAccess(null, imageMeta, "anyother");
+		ImageMeta imageMeta = ImageMeta.builder().access(imageMetaAccess).build();
+
+		accessControlService.validateRowLevelAccess(null, imageMeta, Operation.VIEW);
+		accessControlService.validateRowLevelAccess(null, imageMeta, Operation.MODIFY);
 	}
 
 	@Test
-	void whenRestrictedAndInvalidHashShouldBlock() {
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setAccess(new ImageMetaAccess());
-		imageMeta.setHashedUserKey(passwordEncoder.encode("mykey"));
-		imageMeta.getAccess().setReadAccess(AccessMode.RESTRICTED);
-		imageMeta.getAccess().setWriteAccess(AccessMode.RESTRICTED);
+	void whenReadRestrictedAndWriteAllowedThenForReadInvalidKeyShouldBlock() throws ImageDBAccessDeniedException {
+		ImageMetaAccess imageMetaAccess = ImageMetaAccess.builder().readAccess(AccessMode.RESTRICTED)
+				.writeAccess(AccessMode.PUBLIC).build();
+
+		ImageMeta imageMeta = ImageMeta.builder().access(imageMetaAccess).hashedUserKey(passwordEncoder.encode("mykey"))
+				.build();
 
 		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess(null, imageMeta, "view"));
+				() -> accessControlService.validateRowLevelAccess(null, imageMeta, Operation.VIEW));
 
 		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess(null, imageMeta, "aotheropperation"));
+				() -> accessControlService.validateRowLevelAccess("wrongKey", imageMeta, Operation.VIEW));
 
-		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess("diffKey", imageMeta, "view"));
+		accessControlService.validateRowLevelAccess("mykey", imageMeta, Operation.VIEW);
 
-		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess("diffKey", imageMeta, "aotheropperation"));
-	}
-
-	@Test
-	void whenReadPublicWriteRestricted() throws ImageDBAccessDeniedException {
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setAccess(new ImageMetaAccess());
-		imageMeta.setHashedUserKey(passwordEncoder.encode("mykey"));
-		imageMeta.getAccess().setReadAccess(AccessMode.PUBLIC);
-		imageMeta.getAccess().setWriteAccess(AccessMode.RESTRICTED);
-
-		accessControlService.validateRowLevelAccess(null, imageMeta, "view");
-
-		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess(null, imageMeta, "aotheropperation"));
-
-		accessControlService.validateRowLevelAccess("diffKey", imageMeta, "view");
-
-		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess("diffKey", imageMeta, "aotheropperation"));
-
-		accessControlService.validateRowLevelAccess("mykey", imageMeta, "view");
-		accessControlService.validateRowLevelAccess("mykey", imageMeta, "aotheropperation");
+		accessControlService.validateRowLevelAccess(null, imageMeta, Operation.MODIFY);
 
 	}
 
 	@Test
-	void whenReadRestrictedWritePublic() throws ImageDBAccessDeniedException {
-		ImageMeta imageMeta = new ImageMeta();
-		imageMeta.setAccess(new ImageMetaAccess());
-		imageMeta.setHashedUserKey(passwordEncoder.encode("mykey"));
-		imageMeta.getAccess().setReadAccess(AccessMode.RESTRICTED);
-		imageMeta.getAccess().setWriteAccess(AccessMode.PUBLIC);
+	void whenWriteRestrictedAndReadAllowedThenForWriteInvalidKeyShouldBlock() throws ImageDBAccessDeniedException {
+		ImageMetaAccess imageMetaAccess = ImageMetaAccess.builder().readAccess(AccessMode.PUBLIC)
+				.writeAccess(AccessMode.RESTRICTED).build();
 
-		accessControlService.validateRowLevelAccess(null, imageMeta, "aotheropperation");
+		ImageMeta imageMeta = ImageMeta.builder().access(imageMetaAccess).hashedUserKey(passwordEncoder.encode("mykey"))
+				.build();
 
-		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess(null, imageMeta, "view"));
-
-		accessControlService.validateRowLevelAccess("diffKey", imageMeta, "aotheropperation");
+		accessControlService.validateRowLevelAccess(null, imageMeta, Operation.VIEW);
 
 		assertThrowsExactly(ImageDBAccessDeniedException.class,
-				() -> accessControlService.validateRowLevelAccess("diffKey", imageMeta, "view"));
+				() -> accessControlService.validateRowLevelAccess(null, imageMeta, Operation.MODIFY));
 
-		accessControlService.validateRowLevelAccess("mykey", imageMeta, "aotheropperation");
-		accessControlService.validateRowLevelAccess("mykey", imageMeta, "view");
+		assertThrowsExactly(ImageDBAccessDeniedException.class,
+				() -> accessControlService.validateRowLevelAccess("wrongKey", imageMeta, Operation.MODIFY));
+
+		accessControlService.validateRowLevelAccess("mykey", imageMeta, Operation.MODIFY);
 
 	}
 

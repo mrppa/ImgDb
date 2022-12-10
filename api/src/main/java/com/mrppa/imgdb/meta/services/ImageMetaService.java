@@ -2,31 +2,15 @@ package com.mrppa.imgdb.meta.services;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.mrppa.imgdb.exception.ImageMetaException;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
-import com.mrppa.imgdb.meta.repositories.ImageMetaRepository;
 
-@Transactional
-@Service
-public class ImageMetaService {
+public interface ImageMetaService {
 
-	@Autowired
-	ImageMetaRepository imageMetaRepository;
+	ImageMeta save(ImageMeta imageMeta) throws ImageMetaException;
 
-	public ImageMeta save(ImageMeta imageMeta) {
-		imageMeta = imageMetaRepository.save(imageMeta);
-		return imageMeta;
-	}
+	Optional<ImageMeta> get(String imageId) throws ImageMetaException;
 
-	public Optional<ImageMeta> get(String imageId) {
-		Optional<ImageMeta> optImageMeta = imageMetaRepository.findById(imageId);
-		return optImageMeta;
-	}
+	void delete(String imageId) throws ImageMetaException;
 
-	public void delete(String imageId) {
-		imageMetaRepository.deleteById(imageId);
-	}
 }
