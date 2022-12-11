@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,8 +72,8 @@ public class ImgRestController {
 
 	@PutMapping(value = "/meta/{imageId}")
 	public ResponseEntity<ImgDbResponse<UiImageMeta>> updateImageMeta(@RequestBody UiImageMeta uiImageMeta,
-			@RequestHeader(value = "userKey", defaultValue = "") String userKey, @PathParam("imageId") String imageId)
-			throws ImageDbException {
+			@RequestHeader(value = "userKey", defaultValue = "") String userKey,
+			@PathVariable("imageId") String imageId) throws ImageDbException {
 		LOGGER.debug("updating imagemeta with imageid:{}, imageMeta:{}", imageId, uiImageMeta);
 
 		if (!imageId.equals(uiImageMeta.getImagId())) {
@@ -100,7 +100,7 @@ public class ImgRestController {
 	}
 
 	@GetMapping(value = "/meta/{imageId}")
-	public ResponseEntity<ImgDbResponse<UiImageMeta>> retrieveImageMeta(@PathParam("imageId") String imageId,
+	public ResponseEntity<ImgDbResponse<UiImageMeta>> retrieveImageMeta(@PathVariable("imageId") String imageId,
 			@RequestHeader(value = "userKey", defaultValue = "") String userKey) throws ImageDbException {
 		LOGGER.debug("get imagemeta with imageid:{}", imageId);
 
@@ -118,9 +118,9 @@ public class ImgRestController {
 	@PutMapping(value = "/{imageId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ImgDbResponse<UiImageMeta>> uploadImage(
 			@RequestPart(value = "file", required = true) MultipartFile multipartFile,
-			@RequestHeader(value = "userKey", defaultValue = "") String userKey, @PathParam("imageId") String imageId)
-			throws ImageDbException, IOException {
-		LOGGER.debug("uploading new image with imageid:{}, imageMeta:{}", imageId);
+			@RequestHeader(value = "userKey", defaultValue = "") String userKey,
+			@PathVariable("imageId") String imageId) throws ImageDbException, IOException {
+		LOGGER.debug("uploading new image with imageid:{}", imageId);
 
 		Optional<ImageMeta> optImageMetaFromDb = imageMetaService.get(imageId);
 		if (optImageMetaFromDb.isEmpty()) {
@@ -139,7 +139,7 @@ public class ImgRestController {
 	}
 
 	@GetMapping(value = "/{imageId}")
-	public ResponseEntity<Void> getImage(@PathParam("imageId") String imageId,
+	public ResponseEntity<Void> getImage(@PathVariable("imageId") String imageId,
 			@RequestHeader(value = "userKey", defaultValue = "") String userKey, HttpServletResponse response)
 			throws ImageDbException, IOException {
 		LOGGER.trace("retriving an image. id:{}", imageId);
@@ -158,7 +158,7 @@ public class ImgRestController {
 	}
 
 	@DeleteMapping(value = "/{imageId}")
-	public ResponseEntity<String> deleteImage(@PathParam("imageId") String imageId,
+	public ResponseEntity<String> deleteImage(@PathVariable("imageId") String imageId,
 			@RequestHeader(value = "userKey", defaultValue = "") String userKey) throws ImageDbException, IOException {
 		LOGGER.trace("delete an image. id:{}", imageId);
 

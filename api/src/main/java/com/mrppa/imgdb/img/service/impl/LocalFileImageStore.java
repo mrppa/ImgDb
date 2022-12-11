@@ -68,6 +68,6 @@ public class LocalFileImageStore implements ImageStore {
 
 	@Override
 	public String generateURL(String imageId) throws ImageDbException {
-		return localImageBaseUrl + File.separator + imageId;
+		return localImageBaseUrl + "/" + imageId;
 	}
 }
