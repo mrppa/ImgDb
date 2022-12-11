@@ -12,5 +12,4 @@ public interface ImageMetaService {
 	Optional<ImageMeta> get(String imageId) throws ImageMetaException;
 
 	void delete(String imageId) throws ImageMetaException;
-
 }

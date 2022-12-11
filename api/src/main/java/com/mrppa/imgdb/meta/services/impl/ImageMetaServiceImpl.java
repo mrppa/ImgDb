@@ -40,4 +40,5 @@ public class ImageMetaServiceImpl implements ImageMetaService {
 		LOGGER.debug("delete ImageMeta by id {}", imageId);
 		imageMetaRepository.deleteById(imageId);
 	}
+
 }

@@ -9,6 +9,7 @@ import java.io.OutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileCopyUtils;
 
 import com.mrppa.imgdb.exception.ImageDbException;
@@ -19,6 +20,9 @@ import com.mrppa.imgdb.img.service.ImageStore;
 public class LocalFileImageStore implements ImageStore {
 	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 	private final String basePath;
+
+	@Value("${imagedb.localImageStore.baseUrl}")
+	private String localImageBaseUrl;
 
 	public LocalFileImageStore(String basePath) {
 		this.basePath = basePath;
@@ -60,5 +64,10 @@ public class LocalFileImageStore implements ImageStore {
 			throw new ImageFileNotFoundException("Image file not found");
 		}
 		targetFile.delete();
+	}
+
+	@Override
+	public String generateURL(String imageId) throws ImageDbException {
+		return localImageBaseUrl + File.separator + imageId;
 	}
 }

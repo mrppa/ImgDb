@@ -1,5 +1,5 @@
 package com.mrppa.imgdb.meta.entities;
 
 public enum ImageMetaStatus {
-	UPLOADING, ACTIVE, DELETING
+	CREATED, ACTIVE, PENDING_DELETE
 }

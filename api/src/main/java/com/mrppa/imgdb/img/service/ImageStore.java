@@ -6,9 +6,11 @@ import java.io.OutputStream;
 import com.mrppa.imgdb.exception.ImageDbException;
 
 public interface ImageStore {
-	public void storeImage(InputStream inputStream, String fileName) throws ImageDbException;
+	void storeImage(InputStream inputStream, String fileName) throws ImageDbException;
 
-	public void retriveImage(OutputStream outputStream, String fileName) throws ImageDbException;
+	void retriveImage(OutputStream outputStream, String fileName) throws ImageDbException;
 
-	public void deleteImage(String fileName) throws ImageDbException;
+	void deleteImage(String fileName) throws ImageDbException;
+
+	String generateURL(String imageId) throws ImageDbException;
 }

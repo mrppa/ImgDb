@@ -6,7 +6,6 @@ import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
 
 import lombok.Data;
 
-
 @Data
 public class UiImageMeta {
 	private String imagId;
@@ -19,10 +18,10 @@ public class UiImageMeta {
 
 	private LocalDateTime updatedDate;
 
-	private int version;
-
 	private UiImageMetaAccess access = new UiImageMetaAccess();
 
 	private String extension;
+
+	private String imageUrl;
 
 }
