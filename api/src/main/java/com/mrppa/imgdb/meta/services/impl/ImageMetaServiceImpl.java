@@ -15,7 +15,7 @@ import com.mrppa.imgdb.meta.services.ImageMetaService;
 @Transactional
 @Service
 public class ImageMetaServiceImpl implements ImageMetaService {
-	private final Logger LOGGER = LoggerFactory.getLogger(ImageMetaServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ImageMetaServiceImpl.class);
 
 	@Autowired
 	ImageMetaRepository imageMetaRepository;
@@ -31,8 +31,7 @@ public class ImageMetaServiceImpl implements ImageMetaService {
 	@Override
 	public Optional<ImageMeta> get(String imageId) {
 		LOGGER.debug("Retrive ImageMeta for id {}", imageId);
-		Optional<ImageMeta> optImageMeta = imageMetaRepository.findById(imageId);
-		return optImageMeta;
+		return imageMetaRepository.findById(imageId);
 	}
 
 	@Override

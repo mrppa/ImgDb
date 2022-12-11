@@ -38,7 +38,8 @@ import com.mrppa.imgdb.services.AccessControlService;
 @RestController
 @RequestMapping("/api/v1/img")
 public class ImgRestController {
-	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+	private static final Logger LOGGER = LoggerFactory.getLogger(ImgRestController.class);
+	private static final String MESSAGE_NO_RECORD = " No matching record found for Id ";
 
 	@Autowired
 	ImageMetaMapper imageMetaMapper;
@@ -82,7 +83,7 @@ public class ImgRestController {
 
 		Optional<ImageMeta> optImageMetaFromDb = imageMetaService.get(imageId);
 		if (optImageMetaFromDb.isEmpty()) {
-			return metaFailResponse(HttpStatus.NOT_FOUND, "No matching record found");
+			return metaFailResponse(HttpStatus.NOT_FOUND, MESSAGE_NO_RECORD);
 		}
 		ImageMeta imageMetaFromDb = optImageMetaFromDb.get();
 
@@ -106,7 +107,7 @@ public class ImgRestController {
 
 		Optional<ImageMeta> optImageMetaFromDb = imageMetaService.get(imageId);
 		if (optImageMetaFromDb.isEmpty()) {
-			return metaFailResponse(HttpStatus.NOT_FOUND, "No matching record found");
+			return metaFailResponse(HttpStatus.NOT_FOUND, MESSAGE_NO_RECORD);
 		}
 		ImageMeta imageMetaFromDb = optImageMetaFromDb.get();
 
@@ -124,7 +125,7 @@ public class ImgRestController {
 
 		Optional<ImageMeta> optImageMetaFromDb = imageMetaService.get(imageId);
 		if (optImageMetaFromDb.isEmpty()) {
-			return metaFailResponse(HttpStatus.NOT_FOUND, "No matching record found");
+			return metaFailResponse(HttpStatus.NOT_FOUND, MESSAGE_NO_RECORD);
 		}
 		ImageMeta imageMetaFromDb = optImageMetaFromDb.get();
 
@@ -159,7 +160,7 @@ public class ImgRestController {
 
 	@DeleteMapping(value = "/{imageId}")
 	public ResponseEntity<String> deleteImage(@PathVariable("imageId") String imageId,
-			@RequestHeader(value = "userKey", defaultValue = "") String userKey) throws ImageDbException, IOException {
+			@RequestHeader(value = "userKey", defaultValue = "") String userKey) throws ImageDbException {
 		LOGGER.trace("delete an image. id:{}", imageId);
 
 		Optional<ImageMeta> optImageMetaFromDb = imageMetaService.get(imageId);
@@ -171,7 +172,7 @@ public class ImgRestController {
 		accessControlService.validateRowLevelAccess(userKey, imageMetaFromDb, Operation.MODIFY);
 
 		imageMetaFromDb.setStatus(ImageMetaStatus.PENDING_DELETE);
-		imageMetaFromDb = imageMetaService.save(imageMetaFromDb);
+		imageMetaService.save(imageMetaFromDb);
 
 		return ResponseEntity.ok().build();
 	}

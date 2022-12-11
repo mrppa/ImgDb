@@ -14,12 +14,13 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import com.mrppa.imgdb.ImgdbApplicationTests;
 import com.mrppa.imgdb.exception.ImageMetaException;
 import com.mrppa.imgdb.meta.entities.AccessMode;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
 
-@SpringBootTest
+@SpringBootTest(classes = ImgdbApplicationTests.class)
 class ImageMetaServiceImplTest {
 
 	@Autowired
@@ -47,7 +48,6 @@ class ImageMetaServiceImplTest {
 		assertNotNull(imageMeta.getImagId());
 		assertNotNull(imageMeta.getAddedDate());
 		assertNotNull(imageMeta.getUpdatedDate());
-		assertNotNull(imageMeta.getVersion());
 		assertNotNull(imageMeta.getAccess());
 		assertEquals(AccessMode.PUBLIC, imageMeta.getAccess().getReadAccess());
 		assertEquals(AccessMode.PUBLIC, imageMeta.getAccess().getWriteAccess());
@@ -68,7 +68,7 @@ class ImageMetaServiceImplTest {
 		imageMeta.setDescription("UPDATED");
 
 		imageMeta = imageMetaService.save(imageMeta);
-		
+
 		Optional<ImageMeta> optFetchedImageMeta1 = imageMetaService.get(imageMeta.getImagId());
 		assertTrue(optFetchedImageMeta1.isPresent());
 		assertEquals("UPDATED", optFetchedImageMeta1.get().getDescription());

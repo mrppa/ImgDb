@@ -18,7 +18,7 @@ import com.mrppa.imgdb.exception.ImageFileStoreException;
 import com.mrppa.imgdb.img.service.ImageStore;
 
 public class LocalFileImageStore implements ImageStore {
-	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+	private static final Logger LOGGER = LoggerFactory.getLogger(LocalFileImageStore.class);
 	private final String basePath;
 
 	@Value("${imagedb.localImageStore.baseUrl}")
@@ -37,7 +37,6 @@ public class LocalFileImageStore implements ImageStore {
 		try {
 			FileCopyUtils.copy(inputStream, new FileOutputStream(targetFile));
 		} catch (IOException e) {
-			LOGGER.error("Error storing image", e);
 			throw new ImageFileStoreException("Error storing image", e);
 		}
 
@@ -52,7 +51,6 @@ public class LocalFileImageStore implements ImageStore {
 		try {
 			FileCopyUtils.copy(new FileInputStream(targetFile), outputStream);
 		} catch (IOException e) {
-			LOGGER.error("Error retriving image", e);
 			throw new ImageFileStoreException("Error retriving image", e);
 		}
 	}
@@ -63,7 +61,8 @@ public class LocalFileImageStore implements ImageStore {
 		if (!targetFile.exists()) {
 			throw new ImageFileNotFoundException("Image file not found");
 		}
-		targetFile.delete();
+		boolean deleted = targetFile.delete();
+		LOGGER.info("File {} deleted:{}", fileName, deleted);
 	}
 
 	@Override

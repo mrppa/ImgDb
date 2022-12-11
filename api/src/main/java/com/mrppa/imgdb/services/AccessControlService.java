@@ -13,7 +13,7 @@ import com.mrppa.imgdb.model.Operation;
 
 @Component
 public class AccessControlService {
-	private final Logger LOGGER = LoggerFactory.getLogger(AccessControlService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlService.class);
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -36,10 +36,9 @@ public class AccessControlService {
 
 		if (AccessMode.PUBLIC == accessMode) {
 			return;
-		} else if (AccessMode.RESTRICTED == accessMode) {
-			if (passwordEncoder.matches(userKey == null ? "" : userKey, imageMeta.getHashedUserKey())) {
-				return;
-			}
+		} else if (AccessMode.RESTRICTED == accessMode
+				&& passwordEncoder.matches(userKey == null ? "" : userKey, imageMeta.getHashedUserKey())) {
+			return;
 
 		}
 		throw new ImageDBAccessDeniedException(

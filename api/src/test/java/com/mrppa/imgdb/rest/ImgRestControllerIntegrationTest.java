@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -25,7 +26,8 @@ import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
 import com.mrppa.imgdb.model.ImgDbResponse;
 import com.mrppa.imgdb.model.UiImageMeta;
 
-@SpringBootTest(classes = ImgdbApplicationTests.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@ActiveProfiles("test")
+@SpringBootTest(classes = { ImgdbApplicationTests.class }, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 class ImgRestControllerIntegrationTest {
 	private final Logger LOGGER = LoggerFactory.getLogger(ImgRestControllerIntegrationTest.class);
 
@@ -35,7 +37,7 @@ class ImgRestControllerIntegrationTest {
 	TestRestTemplate restTemplate = new TestRestTemplate();
 
 	@Test
-	public void testSucessPath() {
+	void testSucessPath() {
 
 		// create meta
 		UiImageMeta uiImageMeta = new UiImageMeta();
