@@ -2,13 +2,15 @@ package com.mrppa.imgdb.services;
 
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+import java.security.SecureRandom;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 import com.mrppa.imgdb.exception.ImageDBAccessDeniedException;
 import com.mrppa.imgdb.meta.entities.AccessMode;
@@ -20,7 +22,7 @@ import com.mrppa.imgdb.model.Operation;
 class AccessControlServiceTest {
 
 	@Spy
-	PasswordEncoder passwordEncoder = new Pbkdf2PasswordEncoder();
+	PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10, new SecureRandom());
 
 	@InjectMocks
 	AccessControlService accessControlService;
