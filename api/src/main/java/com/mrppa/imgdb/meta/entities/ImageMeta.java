@@ -1,10 +1,14 @@
 package com.mrppa.imgdb.meta.entities;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,5 +58,9 @@ public class ImageMeta {
 	private ImageMetaAccess access = new ImageMetaAccess();
 
 	private String extension;
+
+	@Builder.Default
+	@JdbcTypeCode(SqlTypes.JSON)
+	private Map<String, String> properties = new HashMap<>();
 
 }

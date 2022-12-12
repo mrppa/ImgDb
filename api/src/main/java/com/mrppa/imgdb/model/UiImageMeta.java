@@ -1,6 +1,8 @@
 package com.mrppa.imgdb.model;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
 
@@ -21,7 +23,9 @@ public class UiImageMeta {
 	private UiImageMetaAccess access = new UiImageMetaAccess();
 
 	private String extension;
-
+	
+	private Map<String, String> properties = new HashMap<>();
+	
 	private String imageUrl;
 
 }

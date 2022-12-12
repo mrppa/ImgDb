@@ -42,6 +42,7 @@ class ImgRestControllerIntegrationTest {
 		// create meta
 		UiImageMeta uiImageMeta = new UiImageMeta();
 		uiImageMeta.setDescription("Test Desc");
+		uiImageMeta.getProperties().put("testPropKey", "testPropValue");
 		var response = exchange("/api/v1/img/meta", HttpMethod.POST, uiImageMeta, "testKey");
 		LOGGER.info("Response {}", response);
 		assertTrue(response.getStatusCode().is2xxSuccessful());
@@ -96,6 +97,7 @@ class ImgRestControllerIntegrationTest {
 		LOGGER.info("Response {}", getResponse3);
 		assertTrue(getResponse3.getStatusCode().is2xxSuccessful());
 		assertEquals(ImageMetaStatus.PENDING_DELETE, getResponse3.getBody().getData().getStatus());
+		assertEquals("testPropValue", getResponse3.getBody().getData().getProperties().get("testPropKey"));
 
 	}
 
