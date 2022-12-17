@@ -1,6 +1,5 @@
 package com.mrppa.imgdb.model;
 
-import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;

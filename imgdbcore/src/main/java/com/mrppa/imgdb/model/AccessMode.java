@@ -1,4 +1,4 @@
-package com.mrppa.imgdb.meta.entities;
+package com.mrppa.imgdb.model;
 
 public enum AccessMode {
     PUBLIC, RESTRICTED

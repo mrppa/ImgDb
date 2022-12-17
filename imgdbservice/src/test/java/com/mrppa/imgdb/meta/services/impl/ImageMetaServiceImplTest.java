@@ -1,9 +1,9 @@
 package com.mrppa.imgdb.meta.services.impl;
 
 import com.mrppa.imgdb.ImgDbApplicationTests;
-import com.mrppa.imgdb.meta.entities.AccessMode;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
+import com.mrppa.imgdb.model.AccessMode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

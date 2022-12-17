@@ -1,7 +1,7 @@
 package com.mrppa.imgdb.rest;
 
 import com.mrppa.imgdb.ImgDbApplicationTests;
-import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
+import com.mrppa.imgdb.model.ImageMetaStatus;
 import com.mrppa.imgdb.model.ImgDbResponse;
 import com.mrppa.imgdb.model.UiImageMeta;
 import org.junit.jupiter.api.Test;

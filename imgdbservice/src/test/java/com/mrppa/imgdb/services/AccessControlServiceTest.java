@@ -1,9 +1,9 @@
 package com.mrppa.imgdb.services;
 
 import com.mrppa.imgdb.exception.ImageDBAccessDeniedException;
-import com.mrppa.imgdb.meta.entities.AccessMode;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
 import com.mrppa.imgdb.meta.entities.ImageMetaAccess;
+import com.mrppa.imgdb.model.AccessMode;
 import com.mrppa.imgdb.model.Operation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

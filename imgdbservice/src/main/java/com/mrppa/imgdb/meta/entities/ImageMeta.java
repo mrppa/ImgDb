@@ -1,5 +1,6 @@
 package com.mrppa.imgdb.meta.entities;
 
+import com.mrppa.imgdb.model.ImageMetaStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

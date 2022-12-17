@@ -4,7 +4,7 @@ import com.mrppa.imgdb.exception.ImageDbException;
 import com.mrppa.imgdb.img.service.ImageStore;
 import com.mrppa.imgdb.mappers.ImageMetaMapper;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
-import com.mrppa.imgdb.meta.entities.ImageMetaStatus;
+import com.mrppa.imgdb.model.ImageMetaStatus;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
 import com.mrppa.imgdb.model.ImgDbResponse;
 import com.mrppa.imgdb.model.Operation;
