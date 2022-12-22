@@ -4,12 +4,12 @@ import com.mrppa.imgdb.ImgDbApplicationTests;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
 import com.mrppa.imgdb.model.AccessMode;
+import com.mrppa.imgdb.model.ImageMetaStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Optional;
 
@@ -23,8 +23,8 @@ class ImageMetaServiceImplTest {
 
     @Test
     void testSaveGetDeleteHappyPath() {
-        ImageMeta imageMeta = ImageMeta.builder().build();
-        imageMeta = imageMetaService.save(imageMeta);
+        ImageMeta imageMeta = ImageMeta.builder().status(ImageMetaStatus.CREATED).build();
+        imageMeta = imageMetaService.insert(imageMeta);
 
         Optional<ImageMeta> optFetchedImageMeta1 = imageMetaService.get(imageMeta.getImageId());
         assertTrue(optFetchedImageMeta1.isPresent());
@@ -38,8 +38,8 @@ class ImageMetaServiceImplTest {
 
     @Test
     void whenSavingAutoGenFieldsShouldPopulate() {
-        ImageMeta imageMeta = ImageMeta.builder().build();
-        imageMeta = imageMetaService.save(imageMeta);
+        ImageMeta imageMeta = ImageMeta.builder().status(ImageMetaStatus.CREATED).build();
+        imageMeta = imageMetaService.insert(imageMeta);
         assertNotNull(imageMeta.getImageId());
         assertNotNull(imageMeta.getAddedDate());
         assertNotNull(imageMeta.getUpdatedDate());
@@ -49,18 +49,13 @@ class ImageMetaServiceImplTest {
     }
 
     @Test
-    void whenDeletingNotAvailableItemShouldThrowRuntimeError() {
-        assertThrowsExactly(EmptyResultDataAccessException.class, () -> imageMetaService.delete("THIS ID NOT AVAILABLE"));
-    }
-
-    @Test
     void whenUpdatingResultShouldPersist() {
-        ImageMeta imageMeta = ImageMeta.builder().build();
-        imageMeta = imageMetaService.save(imageMeta);
+        ImageMeta imageMeta = ImageMeta.builder().status(ImageMetaStatus.CREATED).build();
+        imageMeta = imageMetaService.insert(imageMeta);
 
         imageMeta.setDescription("UPDATED");
 
-        imageMeta = imageMetaService.save(imageMeta);
+        imageMetaService.update(imageMeta);
 
         Optional<ImageMeta> optFetchedImageMeta1 = imageMetaService.get(imageMeta.getImageId());
         assertTrue(optFetchedImageMeta1.isPresent());

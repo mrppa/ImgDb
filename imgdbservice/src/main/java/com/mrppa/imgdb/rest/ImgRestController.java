@@ -55,7 +55,7 @@ public class ImgRestController {
         imageMeta.setHashedUserKey(passwordEncoder.encode(userKey));
         imageMeta.setStatus(ImageMetaStatus.CREATED);
 
-        imageMeta = imageMetaService.save(imageMeta);
+        imageMeta = imageMetaService.insert(imageMeta);
 
         return metaOkResponse(imageMeta);
     }
@@ -84,7 +84,7 @@ public class ImgRestController {
         imageMeta.setAddedDate(imageMetaFromDb.getAddedDate());
         imageMeta.setVersion(imageMetaFromDb.getVersion());
 
-        imageMeta = imageMetaService.save(imageMeta);
+        imageMetaService.update(imageMeta);
 
         return metaOkResponse(imageMeta);
     }
@@ -123,7 +123,7 @@ public class ImgRestController {
         imageStore.storeImage(multipartFile.getInputStream(), imageId);
 
         imageMetaFromDb.setStatus(ImageMetaStatus.ACTIVE);
-        imageMetaFromDb = imageMetaService.save(imageMetaFromDb);
+        imageMetaService.update(imageMetaFromDb);
 
         return metaOkResponse(imageMetaFromDb);
     }
@@ -161,7 +161,7 @@ public class ImgRestController {
         accessControlService.validateRowLevelAccess(userKey, imageMetaFromDb, Operation.MODIFY);
 
         imageMetaFromDb.setStatus(ImageMetaStatus.PENDING_DELETE);
-        imageMetaService.save(imageMetaFromDb);
+        imageMetaService.update(imageMetaFromDb);
 
         return ResponseEntity.ok().build();
     }

@@ -2,6 +2,8 @@ package com.mrppa.imgdb;
 
 import com.mrppa.imgdb.img.service.ImageStore;
 import com.mrppa.imgdb.img.service.impl.LocalFileImageStore;
+import com.mrppa.imgdb.meta.repositories.ImageMetaRepository;
+import com.mrppa.imgdb.meta.repositories.impl.ImageMetaRepositoryJDBCImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -25,4 +27,10 @@ public class Config {
         String userDirectory = FileSystems.getDefault().getPath("images").toAbsolutePath().toString();
         return new LocalFileImageStore(userDirectory);
     }
+
+    @Bean
+    public ImageMetaRepository imageMetaRepository(){
+        return new ImageMetaRepositoryJDBCImpl();
+    }
+
 }

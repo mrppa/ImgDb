@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 public interface ImageMetaMapper {
 
     @Mapping(target = "hashedUserKey", ignore = true)
-    @Mapping(target = "version", ignore = true)
     ImageMeta convert(UiImageMeta uiImageMeta);
 
     @Mapping(target = "imageUrl", ignore = true)

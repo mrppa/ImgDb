@@ -6,7 +6,9 @@ import java.util.Optional;
 
 public interface ImageMetaService {
 
-    ImageMeta save(ImageMeta imageMeta);
+    ImageMeta insert(ImageMeta imageMeta);
+
+    void update(ImageMeta imageMeta);
 
     Optional<ImageMeta> get(String imageId);
 

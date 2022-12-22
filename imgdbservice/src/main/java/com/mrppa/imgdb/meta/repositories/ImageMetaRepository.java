@@ -1,10 +1,12 @@
 package com.mrppa.imgdb.meta.repositories;
 
 import com.mrppa.imgdb.meta.entities.ImageMeta;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
-@Repository
-public interface ImageMetaRepository extends JpaRepository<ImageMeta, String> {
 
+public interface ImageMetaRepository {
+    void insert(ImageMeta imageMeta);
+    void update(ImageMeta imageMeta);
+    Optional<ImageMeta> findById(String imageId);
+    void deleteById(String imageId);
 }
