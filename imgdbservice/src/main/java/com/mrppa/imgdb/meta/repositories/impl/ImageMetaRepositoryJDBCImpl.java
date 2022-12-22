@@ -14,8 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,7 +29,7 @@ public class ImageMetaRepositoryJDBCImpl implements ImageMetaRepository {
     JdbcTemplate jdbcTemplate;
 
     @PostConstruct
-    synchronized void init() throws SQLException {
+    synchronized void init(){
         LOGGER.info("Initializing JDBC meta repository");
         attemptToCreateTable();
         LOGGER.info("JDBC meta repository initialized");
@@ -66,27 +68,7 @@ public class ImageMetaRepositoryJDBCImpl implements ImageMetaRepository {
     @Override
     public Optional<ImageMeta> findById(String imageId) {
         try {
-            ImageMeta imageMeta = jdbcTemplate.queryForObject(FIND_BY_ID_SCRIPT, (rs, rowNum) ->
-            {
-                try {
-                    return ImageMeta.builder()
-                            .imageId(rs.getString("image_id"))
-                            .description(rs.getString("description"))
-                            .extension(rs.getString("extension"))
-                            .hashedUserKey(rs.getString("hashed_user_key"))
-                            .access(ImageMetaAccess.builder()
-                                    .readAccess(AccessMode.valueOf(rs.getString("read_access")))
-                                    .writeAccess(AccessMode.valueOf(rs.getString("write_access")))
-                                    .build())
-                            .properties(objectMapper.readValue(rs.getString("properties"), new TypeReference<Map<String, String>>() {
-                            }))
-                            .status(ImageMetaStatus.valueOf(rs.getString("status")))
-                            .addedDate(rs.getTimestamp("added_date").toLocalDateTime())
-                            .updatedDate(rs.getTimestamp("updated_date").toLocalDateTime()).build();
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException("Error while json parsing", e);
-                }
-            }, imageId);
+            ImageMeta imageMeta = jdbcTemplate.queryForObject(FIND_BY_ID_SCRIPT, imageMetaRowMapper, imageId);
             return Optional.ofNullable(imageMeta);
         } catch (EmptyResultDataAccessException e) {
             LOGGER.debug("Record not found");
@@ -100,7 +82,34 @@ public class ImageMetaRepositoryJDBCImpl implements ImageMetaRepository {
         jdbcTemplate.update(DELETE_BY_ID_SCRIPT, imageId);
     }
 
-    private static final String IMAGE_META_TABLE_NAME = "image_meta";
+    @Override
+    public List<ImageMeta> listByStatusAndUpdatedDateBefore(ImageMetaStatus imageMetaStatus,
+                                                             LocalDateTime updatedDate, int recordLimit) {
+        return jdbcTemplate.query(LIST_BY_STATUS_SCRIPT, imageMetaRowMapper, updatedDate,
+                imageMetaStatus.name(), recordLimit);
+    }
+
+    private final RowMapper<ImageMeta> imageMetaRowMapper = (rs, rowNum) -> {
+        try {
+            return ImageMeta.builder()
+                    .imageId(rs.getString("image_id"))
+                    .description(rs.getString("description"))
+                    .extension(rs.getString("extension"))
+                    .hashedUserKey(rs.getString("hashed_user_key"))
+                    .access(ImageMetaAccess.builder()
+                            .readAccess(AccessMode.valueOf(rs.getString("read_access")))
+                            .writeAccess(AccessMode.valueOf(rs.getString("write_access")))
+                            .build())
+                    .properties(objectMapper.readValue(rs.getString("properties"), new TypeReference<Map<String, String>>() {
+                    }))
+                    .status(ImageMetaStatus.valueOf(rs.getString("status")))
+                    .addedDate(rs.getTimestamp("added_date").toLocalDateTime())
+                    .updatedDate(rs.getTimestamp("updated_date").toLocalDateTime()).build();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error while json parsing", e);
+        }
+    };
+
     private static final String CREATE_SCRIPT = """
                 CREATE TABLE IF NOT EXISTS image_meta (
                   image_id varchar(255) NOT NULL,
@@ -130,5 +139,9 @@ public class ImageMetaRepositoryJDBCImpl implements ImageMetaRepository {
             """;
     private static final String DELETE_BY_ID_SCRIPT = """
                 DELETE from image_meta WHERE image_id=?;
+            """;
+
+    private static final String LIST_BY_STATUS_SCRIPT = """
+                SELECT * from image_meta where updated_date<? order by image_id=? asc limit ?;
             """;
 }

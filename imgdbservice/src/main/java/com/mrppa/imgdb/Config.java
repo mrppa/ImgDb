@@ -7,6 +7,7 @@ import com.mrppa.imgdb.meta.repositories.impl.ImageMetaRepositoryJDBCImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -15,6 +16,7 @@ import java.security.SecureRandom;
 
 @Configuration
 @Profile("!test")
+@EnableScheduling
 public class Config {
 
     @Bean
