@@ -1,13 +1,14 @@
 package com.mrppa.imgdb.meta.services.impl;
 
-import com.mrppa.imgdb.ImgDbApplicationTests;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
+import com.mrppa.imgdb.meta.repositories.ImageMetaRepository;
+import com.mrppa.imgdb.meta.repositories.impl.ImageMetaRepositoryJDBCImpl;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
 import com.mrppa.imgdb.model.AccessMode;
 import com.mrppa.imgdb.model.ImageMetaStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
@@ -15,8 +16,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = ImgDbApplicationTests.class)
-class ImageMetaServiceImplTest {
+@JdbcTest
+class ImageMetaServiceTest {
 
     @Autowired
     ImageMetaService imageMetaService;
@@ -68,6 +69,10 @@ class ImageMetaServiceImplTest {
         @Bean
         public ImageMetaService imageMetaService() {
             return new ImageMetaServiceImpl();
+        }
+        @Bean
+        public ImageMetaRepository imageMetaRepository() {
+            return new ImageMetaRepositoryJDBCImpl();
         }
     }
 

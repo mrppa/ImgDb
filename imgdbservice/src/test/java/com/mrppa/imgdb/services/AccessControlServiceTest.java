@@ -12,9 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.security.SecureRandom;
-
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 @ExtendWith(MockitoExtension.class)

@@ -1,6 +1,7 @@
 package com.mrppa.imgdb.rest;
 
-import com.mrppa.imgdb.ImgDbApplicationTests;
+import com.mrppa.imgdb.img.service.ImageStore;
+import com.mrppa.imgdb.img.service.impl.LocalFileImageStore;
 import com.mrppa.imgdb.model.ImageMetaStatus;
 import com.mrppa.imgdb.model.ImgDbResponse;
 import com.mrppa.imgdb.model.UiImageMeta;
@@ -8,20 +9,24 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-@ActiveProfiles("test")
-@SpringBootTest(classes = {ImgDbApplicationTests.class}, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-class ImgRestControllerIntegrationTest {
-    private final Logger LOGGER = LoggerFactory.getLogger(ImgRestControllerIntegrationTest.class);
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+class ImgRestControllerTest {
+    private final Logger LOGGER = LoggerFactory.getLogger(ImgRestControllerTest.class);
 
     @LocalServerPort
     private int port;
@@ -145,6 +150,18 @@ class ImgRestControllerIntegrationTest {
         var entity = new HttpEntity<>(null, headers);
 
         return restTemplate.exchange(url, httpMethod, entity, byte[].class);
+    }
+
+    @TestConfiguration
+    static class ImgRestControllerTestConfig {
+        private final Logger LOGGER = LoggerFactory.getLogger(ImgRestControllerTestConfig.class);
+        @Bean
+        @Primary
+        public ImageStore imageStoreWithTemp() throws IOException {
+            String tmpdir = Files.createTempDirectory("_tmpImageDir").toFile().getAbsolutePath();
+            LOGGER.info("Running Local File Image test on {}", tmpdir);
+            return new LocalFileImageStore(tmpdir);
+        }
     }
 
 }

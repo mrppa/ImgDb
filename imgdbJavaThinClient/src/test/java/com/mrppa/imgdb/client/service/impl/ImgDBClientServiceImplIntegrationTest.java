@@ -10,6 +10,7 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -19,7 +20,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ImgDBClientServiceImplTest {
+@Tag("integrationTest")
+class ImgDBClientServiceImplIntegrationTest {
 
     private final ImgDBClientService imgDBClientService = new ImgDBClientServiceImpl("http://localhost:8080/api/v1");
 
@@ -54,7 +56,7 @@ class ImgDBClientServiceImplTest {
     }
 
     @Test
-    public void writeAccessDenyWhenReadPublicAndWriteAccessRestricted() throws ImageDbClientException, IOException {
+    public void writeAccessDenyWhenReadPublicAndWriteAccessRestricted() throws ImageDbClientException {
 
         //upload image with read-public, write
         ImageCreateResponse imageCreateResponse = imgDBClientService.storeImage(new ByteArrayInputStream(file_content),
@@ -75,7 +77,7 @@ class ImgDBClientServiceImplTest {
     }
 
     @Test
-    public void readWriteAccessDenyWhenReadRestrictedAndWriteAccessRestricted() throws ImageDbClientException, IOException {
+    public void readWriteAccessDenyWhenReadRestrictedAndWriteAccessRestricted() throws ImageDbClientException {
 
         //upload image with read-public, write
         ImageCreateResponse imageCreateResponse = imgDBClientService.storeImage(new ByteArrayInputStream(file_content),

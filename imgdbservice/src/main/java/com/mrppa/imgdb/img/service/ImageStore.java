@@ -12,5 +12,5 @@ public interface ImageStore {
 
     void deleteImage(String fileName) throws ImageDbException;
 
-    String generateURL(String imageId) throws ImageDbException;
+    String generateURL(String fileName) throws ImageDbException;
 }

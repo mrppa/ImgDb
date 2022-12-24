@@ -37,8 +37,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'com.github.philippheuer.snowflake4j:snowflake4j:1.0.0'
-}
+    implementation 'com.amazonaws:aws-java-sdk:1.12.370'
+ }
 
-tasks.named('test') {
-    useJUnitPlatform()
+test {
+    useJUnitPlatform({
+        excludeTags 'integrationTest'
+    })
 }

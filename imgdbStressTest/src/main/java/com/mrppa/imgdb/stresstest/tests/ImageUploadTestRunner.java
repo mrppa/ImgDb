@@ -5,7 +5,6 @@ import com.mrppa.imgdb.client.service.ImgDBClientService;
 import com.mrppa.imgdb.model.AccessMode;
 import com.mrppa.imgdb.stresstest.TestHandler;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -23,12 +22,12 @@ public class ImageUploadTestRunner implements Runnable{
         try {
             uploadImage();
             testHandler.markSuccess();
-        } catch (FileNotFoundException | ImageDbClientException e) {
+        } catch ( ImageDbClientException e) {
             testHandler.markFail();
         }
     }
 
-    private void uploadImage() throws FileNotFoundException, ImageDbClientException {
+    private void uploadImage() throws ImageDbClientException {
         InputStream inpStream = getClass().getClassLoader().getResourceAsStream("testImages/small.jpg");
         imgDBClientService.storeImage(inpStream, Map.of(),"stressTestKey", AccessMode.PUBLIC,AccessMode.RESTRICTED);
     }

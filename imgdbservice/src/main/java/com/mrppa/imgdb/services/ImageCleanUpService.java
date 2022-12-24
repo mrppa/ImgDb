@@ -33,7 +33,7 @@ public class ImageCleanUpService {
     }
 
     public void cleanupRecordByStatusAndUpdatedDate(ImageMetaStatus imageMetaStatus, LocalDateTime updatedDate) {
-        LOGGER.info("Start cleaning up records updated before {] with status {}", updatedDate, imageMetaStatus);
+        LOGGER.info("Start cleaning up records updated before {} with status {}", updatedDate, imageMetaStatus);
         List<ImageMeta> metaRecords = imageMetaRepository.listByStatusAndUpdatedDateBefore(imageMetaStatus,
                 updatedDate, MAX_RECORDS_PER_TURN);
         int cleanCount=0;

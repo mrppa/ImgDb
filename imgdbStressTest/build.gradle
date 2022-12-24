@@ -26,6 +26,8 @@ dependencies {
     implementation project(path: ':imgdbcore')
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+test {
+    useJUnitPlatform({
+        excludeTags 'integrationTest'
+    })
 }

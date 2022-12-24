@@ -6,7 +6,6 @@ import com.mrppa.imgdb.meta.repositories.ImageMetaRepository;
 import com.mrppa.imgdb.meta.repositories.impl.ImageMetaRepositoryJDBCImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +14,6 @@ import java.nio.file.FileSystems;
 import java.security.SecureRandom;
 
 @Configuration
-@Profile("!test")
 @EnableScheduling
 public class Config {
 
@@ -24,6 +22,7 @@ public class Config {
         return new BCryptPasswordEncoder(10, new SecureRandom());
     }
 
+
     @Bean
     public ImageStore imageStore() {
         String userDirectory = FileSystems.getDefault().getPath("images").toAbsolutePath().toString();
@@ -31,7 +30,7 @@ public class Config {
     }
 
     @Bean
-    public ImageMetaRepository imageMetaRepository(){
+    public ImageMetaRepository imageMetaRepository() {
         return new ImageMetaRepositoryJDBCImpl();
     }
 

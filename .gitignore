@@ -38,3 +38,5 @@ out/
 
 ### Project specific ###
 /images
+/imgdbservice/images
+**/resources/application-*.properties
