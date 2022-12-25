@@ -17,6 +17,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -36,7 +37,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    implementation 'com.github.philippheuer.snowflake4j:snowflake4j:1.0.0'
+    implementation 'com.github.mrppa:uniquegen:0.1.2'
     implementation 'com.amazonaws:aws-java-sdk:1.12.370'
  }
 

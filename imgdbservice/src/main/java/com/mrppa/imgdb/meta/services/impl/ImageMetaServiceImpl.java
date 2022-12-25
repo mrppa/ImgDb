@@ -1,10 +1,11 @@
 package com.mrppa.imgdb.meta.services.impl;
 
-import com.github.philippheuer.snowflake4j.SnowflakeGenerator;
 import com.mrppa.imgdb.meta.entities.ImageMeta;
 import com.mrppa.imgdb.meta.repositories.ImageMetaRepository;
 import com.mrppa.imgdb.meta.services.ImageMetaService;
-import jakarta.annotation.PostConstruct;
+import com.mrppa.uniquegen.GenerateType;
+import com.mrppa.uniquegen.IDGenProvider;
+import com.mrppa.uniquegen.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +23,17 @@ public class ImageMetaServiceImpl implements ImageMetaService {
     @Autowired
     ImageMetaRepository imageMetaRepository;
 
-    @PostConstruct
-    void init(){
-        SnowflakeGenerator.setInstance(SnowflakeGenerator.builder().epochOffset(0L).nodeId(1).build());
+    final IDGenerator idGenerator;
+
+    public ImageMetaServiceImpl(){
+        idGenerator= IDGenProvider.getGenerator(GenerateType.DATE_SEQUENCE_BASED,"INS001");
     }
 
     @Override
     public ImageMeta insert(ImageMeta imageMeta) {
         LOGGER.debug("Inserting ImageMeta {}", imageMeta);
 
-        String imageId = Long.toString(SnowflakeGenerator.getInstance().nextSnowflake().getId());
+        String imageId = idGenerator.generateId();
         imageMeta.setImageId(imageId);
 
         imageMeta.setAddedDate(LocalDateTime.now());
