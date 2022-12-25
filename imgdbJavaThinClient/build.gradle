@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 jar {
@@ -16,6 +17,20 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
+
+shadowJar {
+    dependencies {
+        include(project(':imgdbcore'))
+    }
+    doLast {
+        copy {
+            from shadowJar
+            into "${rootProject.projectDir}/release"
+        }
+    }
+}
+
+tasks.build.dependsOn tasks.shadowJar
 
 repositories {
     mavenCentral()

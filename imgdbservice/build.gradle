@@ -15,6 +15,13 @@ configurations {
     }
 }
 
+bootJar.doLast {
+    copy {
+        from bootJar
+        into "${rootProject.projectDir}/release"
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
