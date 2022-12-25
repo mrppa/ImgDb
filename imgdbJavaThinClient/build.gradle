@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'maven-publish'
 }
 
 jar {
@@ -52,4 +53,23 @@ test {
     useJUnitPlatform({
         excludeTags 'integrationTest'
     })
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "imgdbjavathinclient"
+            url = uri("https://maven.pkg.github.com/mrppa/ImgDb")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        shadow(MavenPublication) { publication ->
+            artifactId = 'imgdbjavathinclient'
+            project.shadow.component(publication)
+        }
+    }
 }

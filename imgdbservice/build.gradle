@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.0.0'
     id 'io.spring.dependency-management' version '1.1.0'
+    id 'maven-publish'
 }
 
 sourceCompatibility = 17
@@ -50,4 +51,23 @@ test {
     useJUnitPlatform({
         excludeTags 'integrationTest'
     })
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "imgdbservice"
+            url = uri("https://maven.pkg.github.com/mrppa/ImgDb")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        bootJava(MavenPublication) {
+            artifactId = 'imgdbservice'
+            artifact bootJar
+        }
+    }
 }
