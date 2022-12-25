@@ -82,7 +82,6 @@ public class ImgRestController {
         imageMeta.setHashedUserKey(imageMetaFromDb.getHashedUserKey());
         imageMeta.setStatus(imageMetaFromDb.getStatus());
         imageMeta.setAddedDate(imageMetaFromDb.getAddedDate());
-        imageMeta.setVersion(imageMetaFromDb.getVersion());
 
         imageMetaService.update(imageMeta);
 

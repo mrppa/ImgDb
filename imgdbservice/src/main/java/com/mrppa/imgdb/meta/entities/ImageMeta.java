@@ -19,7 +19,6 @@ public class ImageMeta {
     private ImageMetaStatus status;
     private LocalDateTime addedDate;
     private LocalDateTime updatedDate;
-    private int version;
     private String hashedUserKey;
     @Builder.Default
     private ImageMetaAccess access = new ImageMetaAccess();

@@ -9,6 +9,7 @@ import com.mrppa.uniquegen.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +26,9 @@ public class ImageMetaServiceImpl implements ImageMetaService {
 
     final IDGenerator idGenerator;
 
-    public ImageMetaServiceImpl(){
-        idGenerator= IDGenProvider.getGenerator(GenerateType.DATE_SEQUENCE_BASED,"INS001");
+    @Autowired
+    public ImageMetaServiceImpl(@Value("${imageDb.s3ImageStore.instanceId}") String instanceId) {
+        idGenerator = IDGenProvider.getGenerator(GenerateType.DATE_SEQUENCE_BASED, instanceId);
     }
 
     @Override

@@ -68,7 +68,7 @@ class ImageMetaServiceTest {
     static class ImageMetaServiceImplTestConfig {
         @Bean
         public ImageMetaService imageMetaService() {
-            return new ImageMetaServiceImpl();
+            return new ImageMetaServiceImpl("INS001");
         }
         @Bean
         public ImageMetaRepository imageMetaRepository() {
