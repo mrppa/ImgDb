@@ -6,8 +6,6 @@ jar {
     enabled=true
 }
 
-group = 'com.mrppa.imgdb'
-version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 17
 targetCompatibility = 17
 

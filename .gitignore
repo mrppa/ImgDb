@@ -40,3 +40,4 @@ out/
 /images
 /imgdbservice/images
 **/resources/application-*.properties
+/release

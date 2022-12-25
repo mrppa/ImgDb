@@ -1,4 +1,5 @@
 rootProject.name = 'imgdb'
+
 include 'imgdbcore'
 include 'imgdbservice'
 include 'imgdbJavaThinClient'
