@@ -2,15 +2,16 @@ package com.mrppa.imgdb;
 
 import com.mrppa.imgdb.img.service.ImageStore;
 import com.mrppa.imgdb.img.service.impl.LocalFileImageStore;
+import com.mrppa.imgdb.img.service.impl.S3ImageStore;
 import com.mrppa.imgdb.meta.repositories.ImageMetaRepository;
 import com.mrppa.imgdb.meta.repositories.impl.ImageMetaRepositoryJDBCImpl;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.nio.file.FileSystems;
 import java.security.SecureRandom;
 
 @Configuration
@@ -24,9 +25,15 @@ public class Config {
 
 
     @Bean
-    public ImageStore imageStore() {
-        String userDirectory = FileSystems.getDefault().getPath("images").toAbsolutePath().toString();
-        return new LocalFileImageStore(userDirectory);
+    @ConditionalOnProperty(name = "imageDb.imageStore", havingValue = "localImageStore")
+    public ImageStore localImageStore() {
+        return new LocalFileImageStore();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "imageDb.imageStore", havingValue = "s3ImageStore")
+    public ImageStore s3ImageStore() {
+        return new S3ImageStore();
     }
 
     @Bean

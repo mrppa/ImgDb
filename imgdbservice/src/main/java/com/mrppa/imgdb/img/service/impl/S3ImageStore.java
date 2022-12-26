@@ -37,17 +37,6 @@ public class S3ImageStore implements ImageStore {
 
     private AmazonS3 s3client;
 
-    public S3ImageStore(String accessKey, String accessSecret, String region, String bucketName, String baseUrl) {
-        this.accessKey = accessKey;
-        this.accessSecret = accessSecret;
-        this.region = region;
-        this.bucketName = bucketName;
-        this.baseUrl = baseUrl;
-    }
-
-    public S3ImageStore() {
-    }
-
     @PostConstruct
     private void init() {
         LOGGER.info("Initializing S3ImageStore with accessKey:{} , region:{} , bucketName:{} , baseUrl:{}"

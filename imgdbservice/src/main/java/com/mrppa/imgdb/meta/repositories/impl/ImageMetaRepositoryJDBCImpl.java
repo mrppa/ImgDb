@@ -84,9 +84,9 @@ public class ImageMetaRepositoryJDBCImpl implements ImageMetaRepository {
 
     @Override
     public List<ImageMeta> listByStatusAndUpdatedDateBefore(ImageMetaStatus imageMetaStatus,
-                                                             LocalDateTime updatedDate, int recordLimit) {
-        return jdbcTemplate.query(LIST_BY_STATUS_SCRIPT, imageMetaRowMapper, updatedDate,
-                imageMetaStatus.name(), recordLimit);
+                                                            LocalDateTime updatedDate, int recordLimit) {
+        return jdbcTemplate.query(LIST_BY_STATUS_SCRIPT, imageMetaRowMapper, imageMetaStatus.name(),
+                updatedDate, recordLimit);
     }
 
     private final RowMapper<ImageMeta> imageMetaRowMapper = (rs, rowNum) -> {
@@ -142,6 +142,6 @@ public class ImageMetaRepositoryJDBCImpl implements ImageMetaRepository {
             """;
 
     private static final String LIST_BY_STATUS_SCRIPT = """
-                SELECT * from image_meta where updated_date<? order by image_id=? asc limit ?;
+                SELECT * from image_meta where status = ? and updated_date<? order by image_id asc limit ?;
             """;
 }
