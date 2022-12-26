@@ -25,8 +25,7 @@ public class Config {
 
     @Bean
     public ImageStore imageStore() {
-        String userDirectory = FileSystems.getDefault().getPath("images").toAbsolutePath().toString();
-        return new LocalFileImageStore(userDirectory);
+        return new LocalFileImageStore();
     }
 
     @Bean

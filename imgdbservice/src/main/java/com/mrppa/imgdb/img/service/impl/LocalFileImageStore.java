@@ -4,6 +4,7 @@ import com.mrppa.imgdb.exception.ImageDbException;
 import com.mrppa.imgdb.exception.ImageFileNotFoundException;
 import com.mrppa.imgdb.exception.ImageFileStoreException;
 import com.mrppa.imgdb.img.service.ImageStore;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,13 +14,27 @@ import java.io.*;
 
 public class LocalFileImageStore implements ImageStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalFileImageStore.class);
-    private final String basePath;
 
     @Value("${imageDb.localImageStore.baseUrl}")
-    private String localImageBaseUrl;
+    String localImageBaseUrl;
 
-    public LocalFileImageStore(String basePath) {
-        this.basePath = basePath;
+    @Value("${imageDb.localImageStore.basePath}")
+    String basePath;
+
+    public LocalFileImageStore(){
+        super();
+    }
+
+    /**
+     * For unit tests only
+     * @param basePath
+     */
+    public LocalFileImageStore(String basePath){
+        this.basePath=basePath;
+    }
+
+    @PostConstruct
+    void init() {
         File baseDir = new File(basePath);
         boolean dirCreated = baseDir.mkdirs();
         LOGGER.debug("base director created:{}", dirCreated);
